@@ -12,14 +12,15 @@ class FlexCollection extends Backbone.Collection
 
 
 class FlexModelView extends Marionette.ItemView
-    template: require('../../templates/row.eco')
     tagName: 'tr'
+    template: require('../../templates/row.eco')
 
 
 class FlexTableView extends Marionette.CompositeView
+    tagName: 'table'
     template: require('../../templates/table.eco')
     childView: FlexModelView
-    tagName: 'table'
+    childViewContainer: 'tbody'
 
 
 class NoModelSelectedView extends Marionette.ItemView
