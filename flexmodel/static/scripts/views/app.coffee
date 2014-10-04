@@ -26,8 +26,6 @@ class FlexCollection extends Backbone.Collection
 class FieldView extends Marionette.ItemView
     tagName: 'td'
     template: require('../../templates/field.eco')
-    events:
-        'click': 'test'
 
 
 class FlexModelView extends Marionette.CollectionView
