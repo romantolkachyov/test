@@ -4,6 +4,9 @@ Backbone.$ = jQuery
 Marionette = require 'backbone.marionette'
 
 
+ENTER_CODE = 13
+
+
 _model_defs = {}
 
 get_field_list = (model) ->
@@ -28,7 +31,10 @@ class FieldView extends Marionette.ItemView
     normal_template: require('../../templates/field.eco')
     edit_template: require('../../templates/field_edit.eco')
     events:
+        'keydown input': 'input_keydown'
         'click': 'toggle_edit'
+    ui:
+        input: 'input'
     modelEvents:
         'change:edit': 'render'
     getTemplate: ->
@@ -37,12 +43,21 @@ class FieldView extends Marionette.ItemView
         else
             return @normal_template
     toggle_edit: ->
-        @model.set 'edit', not @model.get 'edit'
+        if not @model.get 'edit'
+            @model.set 'edit', true
+    input_keydown: (e) ->
+        if e.which == 13
+            alert 'end edit'
+            @model.set
+                value: @ui.input.val()
+                edit: false
 
 
 class FlexModelView extends Marionette.CollectionView
     tagName: 'tr'
     childView: FieldView
+    collectionEvents:
+        'change:value': 'on_field_change'
     initialize: ->
         super()
         data = []
@@ -56,6 +71,11 @@ class FlexModelView extends Marionette.CollectionView
     templateHelpers: ->
         get_field_list: @get_field_list
     get_field_list: => get_field_list(@model.collection.model_id)
+    on_field_change: (model) ->
+        field = model.get 'name'
+        value = model.get 'value'
+        @model.set field, value
+        @model.save()
 
 
 class FlexTableView extends Marionette.CompositeView
