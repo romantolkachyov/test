@@ -5,6 +5,7 @@ Marionette = require 'backbone.marionette'
 
 
 ENTER_CODE = 13
+ESC_CODE = 27
 
 
 _model_defs = {}
@@ -46,11 +47,12 @@ class FieldView extends Marionette.ItemView
         if not @model.get 'edit'
             @model.set 'edit', true
     input_keydown: (e) ->
-        if e.which == 13
-            alert 'end edit'
+        if e.which == ENTER_CODE
             @model.set
                 value: @ui.input.val()
                 edit: false
+        else if e.which == ESC_CODE
+            @model.set 'edit', false
 
 
 class FlexModelView extends Marionette.CollectionView
