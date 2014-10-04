@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
 import sys
 import yaml
 
 from django.db import models
+
+flex_model_list = []
 
 type_field_map = {
     'char': {
@@ -20,7 +23,13 @@ type_field_map = {
 
 
 def get_field(type, title):
-    """ Returns field ready to injection
+    """ Returns field ready to injection into new flex model
+
+    NOTE: this method returns DateTimeField instead DateField for type 'date'
+
+    :param type: (char|int|date) string
+    :param title: string — the name used for user representation
+    :return: models.Field
     """
     data = type_field_map[type]
     FieldClass = data['field']
@@ -28,30 +37,38 @@ def get_field(type, title):
     kwargs.update(dict(null=True))
     return FieldClass(title, **kwargs)
 
-# FIXME: will loads many times
-model_data = yaml.load(file('models.yaml').read())
 
-field_type_map = {
-    'chart': models.CharField
-}
-
-thismodule = sys.modules[__name__]
-
-for model_name, model_meta in model_data.iteritems():
-    attrs = dict()
-    model_title = model_meta['title']
+def make_flex_model(name, config):
+    """ Make a Django model for provided config
+    """
+    attrs = dict(__module__='flexmodel')
+    model_title = config.get('title', name)
 
     # Add model fields from config
-    for field_def in model_meta.get('fields', []):
+    for field_def in config.get('fields', []):
         f_id = field_def['id']
         f_type = field_def['type']
         f_title = field_def['title']
 
         attrs[f_id] = get_field(f_type, f_title)
 
-    attrs['__module__'] = 'flexmodel'
-    # TODO: model_title!!!
+    model = type(name, (models.Model,), attrs)
 
-    model = type(model_name, (models.Model,), attrs)
+    model._meta.verbose_name = model_title
+    model._meta.verbose_name_plural = model_title
 
-    setattr(thismodule, model_name, model)
+    return model
+
+
+def make_all(config):
+    thismodule = sys.modules[__name__]
+    for model_name, model_meta in config.iteritems():
+        model = make_flex_model(model_name, model_meta)
+        flex_model_list.append(model_name)
+        setattr(thismodule, model_name, model)
+
+
+# FIXME: will loads many times
+model_data = yaml.load(file('models.yaml').read())
+
+make_all(model_data)

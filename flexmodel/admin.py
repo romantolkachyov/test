@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+import sys
 from django.contrib import admin
 
-# Register your models here.
+import models
+
+
+thismodule = sys.modules[__name__]
+
+
+for name in models.flex_model_list:
+    model = getattr(models, name)
+    new_admin_cls = type("%sAdmin" % name, (admin.ModelAdmin,), dict())
+    admin.site.register(model, new_admin_cls)
