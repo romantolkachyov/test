@@ -7,3 +7,11 @@ body {
 .side-nav {
     padding-top: 0;
 }
+
+#table_view {
+    table {
+        td {
+            line-height: 50px;
+        }
+    }
+}

@@ -25,7 +25,19 @@ class FlexCollection extends Backbone.Collection
 
 class FieldView extends Marionette.ItemView
     tagName: 'td'
-    template: require('../../templates/field.eco')
+    normal_template: require('../../templates/field.eco')
+    edit_template: require('../../templates/field_edit.eco')
+    events:
+        'click': 'toggle_edit'
+    modelEvents:
+        'change:edit': 'render'
+    getTemplate: ->
+        if @model.get 'edit'
+            return @edit_template
+        else
+            return @normal_template
+    toggle_edit: ->
+        @model.set 'edit', not @model.get 'edit'
 
 
 class FlexModelView extends Marionette.CollectionView
@@ -38,6 +50,7 @@ class FlexModelView extends Marionette.CollectionView
             data.push
                 name: field.id
                 value: @model.get field.id
+                type: @model.get 'type'
                 edit: false
         @collection = new Backbone.Collection data
     templateHelpers: ->
