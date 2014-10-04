@@ -4,6 +4,13 @@ Backbone.$ = jQuery
 Marionette = require 'backbone.marionette'
 
 
+_model_defs = {}
+
+get_field_list = (model) ->
+    definition = window.db_schema[model]
+    definition.fields
+
+
 class FlexModel extends Backbone.Model
 
 
@@ -11,11 +18,17 @@ class FlexCollection extends Backbone.Collection
     model: FlexModel
     url: ->
         "/api/#{@model_id}"
+    parse: (response) ->
+        @row_total = response.count
+        return response.results
 
 
 class FlexModelView extends Marionette.ItemView
     tagName: 'tr'
     template: require('../../templates/row.eco')
+    templateHelpers: ->
+        get_field_list: @get_field_list
+    get_field_list: => get_field_list(@model.collection.model_id)
 
 
 class FlexTableView extends Marionette.CompositeView
@@ -23,17 +36,12 @@ class FlexTableView extends Marionette.CompositeView
     template: require('../../templates/table.eco')
     childView: FlexModelView
     childViewContainer: 'tbody'
-    initialize: ->
-        console.log 'ko'
     templateHelpers: ->
         get_column_list: @get_column_list
 
     get_column_list: =>
         field_list = []
-        for model_name, definition of window.db_schema
-            if model_name == @collection.model_id
-                break
-        for field in definition.fields
+        for field in get_field_list(@collection.model_id)
             field_list.push field.title
         field_list
 
