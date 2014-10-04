@@ -7,8 +7,13 @@ from django.core.cache import cache
 
 from django.db import models
 
+# collect all created model names here
 flex_model_list = []
 
+# our type to django field map with default kwargs
+# keys — our type name, value:
+#  * field — django filed class
+#  * kwargs — default kwargs for that field
 type_field_map = {
     'char': {
         'field': models.CharField,
