@@ -3,9 +3,19 @@
 <head>
   <title></title>
   <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}build/flexmodel.main.css">
+  <script type="text/javascript">
+    window.db_schema = {{ db_schema|safe }};
+  </script>
 </head>
 <body>
+  <div class="row">
+    <div id="model_nav" class="small-3 columns">
 
+    </div>
+    <div id="table_view" class="small-9 columns">
+
+    </div>
+  </div>
   <script type="text/javascript" src="{{ STATIC_URL }}build/flexmodel.main.js"></script>
 </body>
 </html>

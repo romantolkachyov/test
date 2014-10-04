@@ -1,7 +1,6 @@
-$ = jQuery = require 'jquery'
-Backbone = require('backbone')
-Backbone.$ = jQuery
-Marionette = require 'backbone.marionette'
+jQuery = require 'jquery'
+
+app = require './views/app.coffee'
 
 jQuery ->
-    alert 'ok'
+    app.start()
