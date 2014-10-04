@@ -9,6 +9,8 @@ class FlexModel extends Backbone.Model
 
 class FlexCollection extends Backbone.Collection
     model: FlexModel
+    url: ->
+        "/api/#{@model_id}"
 
 
 class FlexModelView extends Marionette.ItemView
@@ -21,7 +23,19 @@ class FlexTableView extends Marionette.CompositeView
     template: require('../../templates/table.eco')
     childView: FlexModelView
     childViewContainer: 'tbody'
+    initialize: ->
+        console.log 'ko'
+    templateHelpers: ->
+        get_column_list: @get_column_list
 
+    get_column_list: =>
+        field_list = []
+        for model_name, definition of window.db_schema
+            if model_name == @collection.model_id
+                break
+        for field in definition.fields
+            field_list.push field.title
+        field_list
 
 class NoModelSelectedView extends Marionette.ItemView
     template: require('../../templates/empty_list.eco')
@@ -77,7 +91,7 @@ app.addInitializer (options) ->
 
 app.vent.on 'change_model', (new_model_id) ->
     class TmpCollection extends FlexCollection
-        url: "/api/#{new_model_id}"
+        model_id: new_model_id
     collection = new TmpCollection
     app.table.show new FlexTableView
         collection: collection
