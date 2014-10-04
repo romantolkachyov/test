@@ -1,3 +1,0 @@
-<% for item in @get_field_list(): %>
-  <td><%= @[item.id] %></td>
-<% end %>

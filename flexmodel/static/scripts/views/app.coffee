@@ -23,9 +23,25 @@ class FlexCollection extends Backbone.Collection
         return response.results
 
 
-class FlexModelView extends Marionette.ItemView
+class FieldView extends Marionette.ItemView
+    tagName: 'td'
+    template: require('../../templates/field.eco')
+    events:
+        'click': 'test'
+
+
+class FlexModelView extends Marionette.CollectionView
     tagName: 'tr'
-    template: require('../../templates/row.eco')
+    childView: FieldView
+    initialize: ->
+        super()
+        data = []
+        for field in get_field_list(@model.collection.model_id)
+            data.push
+                name: field.id
+                value: @model.get field.id
+                edit: false
+        @collection = new Backbone.Collection data
     templateHelpers: ->
         get_field_list: @get_field_list
     get_field_list: => get_field_list(@model.collection.model_id)
