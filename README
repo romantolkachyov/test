@@ -1,0 +1,9 @@
+Install and run
+===============
+
+$ pip install -r requirements-dev.txt
+$ nodeenv -p
+$ npm install -g gulp
+$ gulp
+$ ./manage.py syncdb
+$ ./manage.py runserver
