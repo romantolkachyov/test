@@ -1,3 +1,4 @@
+@import "normalize";
 @import "foundation";
 
 body {
@@ -11,7 +12,14 @@ body {
 #table_view {
     table {
         td {
-            line-height: 50px;
+            line-height: 37px;
+            input {
+                margin: 0;
+            }
         }
     }
+}
+
+.datepicker {
+    width: 300px;
 }

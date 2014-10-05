@@ -25,7 +25,7 @@ type_field_map = {
         'field': models.IntegerField,
     },
     'date': {
-        'field': models.DateTimeField,
+        'field': models.DateField,
     },
 }
 
@@ -47,8 +47,6 @@ def get_db_config():
 
 def get_field(config):
     """ Returns field ready to injection into new flex model
-
-    NOTE: this method returns DateTimeField instead DateField for type 'date'
     """
     field_id = config.get('id')
     field_type = config.get('type', 'char')

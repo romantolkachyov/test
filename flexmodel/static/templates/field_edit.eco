@@ -1,1 +1,8 @@
-<input type="text" value="<%= @value %>">
+<% if @error(): %>
+  <label class="error">Ошибка
+    <input type="text" value="<%= @get_value() %>" class="error" />
+  </label>
+  <small class="error"><%= @error() %></small>
+<% else: %>
+  <input type="text" value="<%= @get_value() %>">
+<% end %>

@@ -2,7 +2,7 @@ $ = jQuery = require 'jquery'
 Backbone = require('backbone')
 Backbone.$ = jQuery
 Marionette = require 'backbone.marionette'
-
+moment = require 'moment'
 
 ENTER_CODE = 13
 ESC_CODE = 27
@@ -13,6 +13,20 @@ _model_defs = {}
 get_field_list = (model) ->
     definition = window.db_schema[model]
     definition.fields
+
+setSelectionRange = (input, selectionStart, selectionEnd) =>
+    if input.setSelectionRange
+        input.focus()
+        input.setSelectionRange selectionStart, selectionEnd
+    else if input.createTextRange
+        range = input.createTextRange()
+        range.collapse true
+        range.moveEnd 'character', selectionEnd
+        range.moveStart 'character', selectionStart
+        range.select()
+
+setCaretToPos = (input, pos) ->
+  setSelectionRange input, pos, pos
 
 
 class FlexModel extends Backbone.Model
@@ -38,21 +52,52 @@ class FieldView extends Marionette.ItemView
         input: 'input'
     modelEvents:
         'change:edit': 'render'
+    templateHelpers: ->
+        'get_value': @get_value
+        'error': @error
+
     getTemplate: ->
         if @model.get 'edit'
             return @edit_template
         else
             return @normal_template
+
+    get_value: =>
+        @model.get 'value'
+
+    error: =>
+        @model.get 'error'
+
     toggle_edit: ->
         if not @model.get 'edit'
             @model.set 'edit', true
     input_keydown: (e) ->
         if e.which == ENTER_CODE
-            @model.set
-                value: @ui.input.val()
-                edit: false
+            @save_and_exit()
         else if e.which == ESC_CODE
             @model.set 'edit', false
+    save_and_exit: ->
+        @model.set
+            value: @ui.input.val()
+            edit: false
+    onRender: ->
+        if @model.get 'edit'
+            setCaretToPos(@ui.input[0], @ui.input.val().length)
+
+class DateFieldView extends FieldView
+    toggle_edit: ->
+        super()
+        @ui.input.datepicker('show')
+    # get_value: =>
+    #     date = new Date super()
+    #     console.log date
+    onRender: ->
+        if @model.get 'edit'
+            picker = @ui.input.datepicker
+                autoclose: true
+                format: "yyyy-mm-dd"
+            picker.on 'changeDate', =>
+                @save_and_exit()
 
 
 class FlexModelView extends Marionette.CollectionView
@@ -67,17 +112,28 @@ class FlexModelView extends Marionette.CollectionView
             data.push
                 name: field.id
                 value: @model.get field.id
-                type: @model.get 'type'
+                type: field.type
                 edit: false
         @collection = new Backbone.Collection data
     templateHelpers: ->
         get_field_list: @get_field_list
+    getChildView: (model) ->
+        console.log model
+        if model.get('type') == 'date'
+            return DateFieldView
+        else
+            return FieldView
     get_field_list: => get_field_list(@model.collection.model_id)
     on_field_change: (model) ->
         field = model.get 'name'
         value = model.get 'value'
         @model.set field, value
-        @model.save()
+        @model.save {},
+            error: (error_model, data) ->
+                resp = data.responseJSON
+                model.set
+                    edit: true
+                    error: resp[field]
 
 
 class FlexTableView extends Marionette.CompositeView
