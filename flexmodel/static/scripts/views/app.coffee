@@ -193,10 +193,20 @@ class NavView extends Marionette.CollectionView
         super
 
 
+class FormView extends Marionette.ItemView
+    template: require '../../templates/form.eco'
+    templateHelpers: ->
+        get_field_list: @get_field_list
+
+    get_field_list: =>
+        get_field_list @model.collection.model_id
+
+
 class FlexApplication extends Marionette.Application
     regions:
         nav: '#model_nav'
         table: '#table_view'
+        form: '#form_view'
 
 app = new FlexApplication
 
@@ -211,5 +221,8 @@ app.vent.on 'change_model', (new_model_id) ->
     app.table.show new FlexTableView
         collection: collection
     collection.fetch()
+
+    app.form.show new FormView
+        model: collection.add({})
 
 module.exports = app
