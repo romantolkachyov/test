@@ -96,6 +96,7 @@ class DateFieldView extends FieldView
             picker = @ui.input.datepicker
                 autoclose: true
                 format: "yyyy-mm-dd"
+                language: 'ru'
             picker.on 'changeDate', =>
                 @save_and_exit()
 
