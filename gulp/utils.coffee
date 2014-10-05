@@ -18,7 +18,7 @@ watch_bundle = (app_name, name) ->
     """ Слежение за изменениями в бандле и быстрая его перестройка
     """
 
-    bundler = watchify browserify("./#{app_name}/static/scripts/#{name}.coffee", watchify.args)
+    bundler = watchify browserify("./#{app_name}/static/scripts/#{name}.coffee", {debug: true})
 
     bundler.transform('coffeeify')
     bundler.transform('browserify-eco')
@@ -27,6 +27,8 @@ watch_bundle = (app_name, name) ->
         rebundle()
 
     bundler.add("./#{app_name}/static/scripts/#{name}.coffee")
+
+    bundler.plugin 'minifyify', {map: "/static/build/#{app_name}.#{name}.min.js.map.json", output: "./static/build/#{app_name}.#{name}.min.js.map.json"}
 
     rebundle = ->
         return bundler.bundle()

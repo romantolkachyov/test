@@ -3,3 +3,4 @@
 ipython
 ipdb
 nodeenv
+fabric
