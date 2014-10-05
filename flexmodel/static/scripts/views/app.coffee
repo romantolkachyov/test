@@ -80,6 +80,7 @@ class FieldView extends Marionette.ItemView
         @model.set
             value: @ui.input.val()
             edit: false
+            error: false
     onRender: ->
         if @model.get 'edit'
             setCaretToPos(@ui.input[0], @ui.input.val().length)
