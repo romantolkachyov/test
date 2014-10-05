@@ -13,7 +13,7 @@ pip = "%sbin/pip" % virtual_env
 
 def deploy():
     env.user = 'deploy'
-    rsync_project(remote_dir=env.dstpath, local_dir=".", exclude=[".*", "node_modules", "*.pyc"])
+    rsync_project(remote_dir=env.dstpath, local_dir=".", exclude=[".*", "node_modules", "*.pyc", "db.sqlite3"])
     with cd(env.dstpath):
         run("%s manage.py collectstatic --noinput" % python)
         run("touch uwsgi.ini")
