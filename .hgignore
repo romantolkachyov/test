@@ -4,3 +4,5 @@ db.sqlite3
 node_modules
 static/build
 .DS_Store
+flexmodel/test_migrations
+npm-debug.log

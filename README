@@ -6,4 +6,12 @@ $ nodeenv -p
 $ npm install -g gulp
 $ gulp
 $ ./manage.py syncdb
+$ ./manage.py makemigrations flexmodel
 $ ./manage.py runserver
+
+Running tests
+=============
+
+$ ./manage.py test --settings=project.settings_test
+
+because tests use their own db config `test_models.yaml`

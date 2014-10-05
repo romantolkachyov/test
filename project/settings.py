@@ -22,6 +22,9 @@ SECRET_KEY = '7jq$6k!s&#t5$t0te5i&ldo&aho5#k=ey(iao1u#bt6)gdq%lj'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# do not skip flex models creation
+SKIP_FLEX_MODELS = False
+
 TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -64,6 +67,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'TEST': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'test_db.sqlite3')
+        }
     }
 }
 
@@ -92,3 +99,5 @@ STATICFILES_DIRS = (
 
 # Defaults:
 # FLEXMODEL_FILE = 'models.yaml'
+
+TEST_RUNNER = 'flexmodel.tests.FlexTestRunner'

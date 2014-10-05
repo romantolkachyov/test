@@ -1,0 +1,11 @@
+all_field_test:
+    title: Проверка всех полей
+    fields:
+        - {id: type_char, title: Текст, type: char}
+        - {id: type_int, title: Целое, type: int}
+        - {id: type_date, title: Дата, type: date}
+other:
+    title: Для количества
+    fields:
+        - {id: department, title: Отдел, type: char}
+        - {id: spots, title: Вместимость, type: int}

@@ -4,6 +4,7 @@ import yaml
 
 from django.conf import settings
 from django.core.cache import cache
+from django.apps.registry import apps
 
 from django.db import models
 
@@ -30,13 +31,13 @@ type_field_map = {
 }
 
 
-def get_db_config():
+def get_db_config(force=False):
     """ Load config in a cache (not so optimal)
 
     Use FLEXMODEL_FILE settings or 'models.yaml' by default
     """
     _config_cache = cache.get('_flex_config_cache')
-    if _config_cache is not None:
+    if not force and _config_cache is not None:
         return _config_cache
     filename = getattr(settings, 'FLEXMODEL_FILE', 'models.yaml')
     fp = file(filename)
@@ -84,17 +85,24 @@ def make_flex_model(name, config):
     return model
 
 
-def make_all(config=None):
+def make_all(config=None, force=False):
     """ Make all models from config file
     """
-    if config is None:
-        config = get_db_config()
-    thismodule = sys.modules[__name__]
-    # iterating over all defined models
-    for model_name, model_meta in config.iteritems():
-        model = make_flex_model(model_name, model_meta)
-        flex_model_list.append(model_name)
-        setattr(thismodule, model_name, model)
+    if not settings.SKIP_FLEX_MODELS or force:
+        flex_model_list = []
+        if config is None:
+            config = get_db_config(force)
+        thismodule = sys.modules[__name__]
+
+        # iterating over all defined models
+        for model_name, model_meta in config.iteritems():
+            model = make_flex_model(model_name, model_meta)
+            flex_model_list.append(model_name)
+            setattr(thismodule, model_name, model)
+        apps.clear_cache()
+        setattr(thismodule, 'flex_model_list', flex_model_list)
+    else:
+        print "--- ignore!!!"
 
 
 make_all()
