@@ -7,15 +7,12 @@ from django.conf import settings
 from django.core.management import call_command
 
 from flexmodel import models
+from flexmodel import api
 
 
 class FlexTestRunner(DiscoverRunner):
     def setup_test_environment(self):
         super(FlexTestRunner, self).setup_test_environment()
-
-
-class FlexModelTestCase(TransactionTestCase):
-    def setUp(self):
         # Clear test migrations
         migration_dir = os.path.join(settings.BASE_DIR, 'flexmodel/test_migrations')
         try:
@@ -30,9 +27,11 @@ class FlexModelTestCase(TransactionTestCase):
 
         models.make_all(force=True)
 
-        call_command('makemigrations', 'flexmodel')
-        call_command('migrate')
+        call_command('makemigrations', 'flexmodel', noinput=True)
+        call_command('migrate', noinput=True)
 
+
+class FlexModelTestCase(TransactionTestCase):
     def test_models(self):
         """ Проверяем наличие моделей на основе конфига
         """
@@ -43,3 +42,8 @@ class FlexModelTestCase(TransactionTestCase):
         self.assertTrue(hasattr(m, 'type_int'))
         self.assertTrue(hasattr(m, 'type_date'))
         m.save()
+
+    def test_api(self):
+        self.assertTrue(len(models.flex_model_list) > 0)
+        api_patterns = api.make_all()
+        self.assertEqual(len(api_patterns), len(models.flex_model_list) * 2)

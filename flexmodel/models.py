@@ -101,8 +101,6 @@ def make_all(config=None, force=False):
             setattr(thismodule, model_name, model)
         apps.clear_cache()
         setattr(thismodule, 'flex_model_list', flex_model_list)
-    else:
-        print "--- ignore!!!"
 
 
 make_all()
