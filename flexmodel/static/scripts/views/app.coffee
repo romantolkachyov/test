@@ -40,21 +40,46 @@ class FlexCollection extends Backbone.Collection
         @row_total = response.count
         return response.results
 
+class FormField extends Marionette.ItemView
+    """ Form field representation
+    """
+    template: require('../../templates/form_field.eco')
+    className: 'row'
+    ui:
+        input: 'input'
+    modelEvents:
+        'change:error': 'render'
+    templateHelpers: ->
+        'get_value': @get_value
+        'error': @error
 
-class FieldView extends Marionette.ItemView
+    get_value: =>
+        @ui.input.val()
+
+    error: =>
+        @model.get 'error'
+
+class FormDateField extends FormField
+    onRender: ->
+        picker = @ui.input.datepicker
+            autoclose: true
+            format: "yyyy-mm-dd"
+            language: 'ru'
+
+class FieldView extends FormField
+    """ Table cell representation with inline edit behaivor
+
+    TODO: Marionette.Behaivor
+    """
     tagName: 'td'
+    className: ''
     normal_template: require('../../templates/field.eco')
     edit_template: require('../../templates/field_edit.eco')
     events:
         'keydown input': 'input_keydown'
         'click': 'toggle_edit'
-    ui:
-        input: 'input'
     modelEvents:
         'change:edit': 'render'
-    templateHelpers: ->
-        'get_value': @get_value
-        'error': @error
 
     getTemplate: ->
         if @model.get 'edit'
@@ -62,15 +87,10 @@ class FieldView extends Marionette.ItemView
         else
             return @normal_template
 
-    get_value: =>
-        @model.get 'value'
-
-    error: =>
-        @model.get 'error'
-
     toggle_edit: ->
         if not @model.get 'edit'
             @model.set 'edit', true
+
     input_keydown: (e) ->
         if e.which == ENTER_CODE
             @save_and_exit()
@@ -81,6 +101,8 @@ class FieldView extends Marionette.ItemView
             value: @ui.input.val()
             edit: false
             error: false
+    get_value: =>
+        @model.get 'value'
     onRender: ->
         if @model.get 'edit'
             setCaretToPos(@ui.input[0], @ui.input.val().length)
@@ -120,7 +142,6 @@ class FlexModelView extends Marionette.CollectionView
     templateHelpers: ->
         get_field_list: @get_field_list
     getChildView: (model) ->
-        console.log model
         if model.get('type') == 'date'
             return DateFieldView
         else
@@ -193,13 +214,47 @@ class NavView extends Marionette.CollectionView
         super
 
 
-class FormView extends Marionette.ItemView
+class FormView extends Marionette.CompositeView
     template: require '../../templates/form.eco'
+    events:
+        'submit form': 'onFormSubmit'
+    onFormSubmit: ->
+        @children.each (view) =>
+            field_name = view.model.get('name')
+            @model.set field_name, view.get_value()
+        @model.save {},
+            success: -> alert 'saved!'
+            error: (model, data) =>
+                for field, errors of data.responseJSON
+                    field = @collection.where({name: field})[0]
+                    field.set 'error', errors
+        false
+    childViewContainer: '.field_list'
+    getChildView: (model) ->
+        if model.get('type') == 'date'
+            return FormDateField
+        return FormField
     templateHelpers: ->
         get_field_list: @get_field_list
 
+    initialize: (options) ->
+        super options
+        if not options.target_collection?
+            throw 'no target for FormView'
+        @target_collection = options.target_collection
+        @model = new @target_collection.model
+        @model.collection = @target_collection
+        data = []
+        for field in @get_field_list()
+            data.push
+                name: field.id
+                value: @model.get field.id
+                type: field.type
+                title: field.title
+        @collection = new Backbone.Collection data
+
     get_field_list: =>
-        get_field_list @model.collection.model_id
+        get_field_list @target_collection.model_id
 
 
 class FlexApplication extends Marionette.Application
@@ -223,6 +278,6 @@ app.vent.on 'change_model', (new_model_id) ->
     collection.fetch()
 
     app.form.show new FormView
-        model: collection.add({})
+        target_collection: collection
 
 module.exports = app

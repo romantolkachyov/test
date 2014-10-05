@@ -1,16 +1,13 @@
 <form>
   <fieldset>
     <legend>Новая запись</legend>
+    <div class="field_list">
 
-    <% for field in @get_field_list(): %>
-      <div class="row">
-        <div class="small-4 columns">
-          <label for="id_<%= field.id %>" class="right inline"><%= field.title %></label>
-        </div>
-        <div class="small-8 columns">
-          <input type="text" id="id_<%= field.id %>">
-        </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns push-4">
+        <input type="submit" class="button" value="Создать">
       </div>
-    <% end %>
+    </div>
   </fieldset>
 </form>

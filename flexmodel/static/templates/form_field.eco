@@ -1,0 +1,9 @@
+<div class="row">
+  <div class="small-4 columns">
+    <label for="id_<%= @name %>" class="right inline <% if @error(): %>error<% end %>"><%= @title %></label>
+  </div>
+  <div class="small-8 columns">
+    <input type="text" id="id_<%= @name %>" value="<%= @value %>" class="<% if @error(): %>error<% end %>">
+    <% if @error(): %><small class="error"><%= @error() %></small><% end %>
+  </div>
+</div>
