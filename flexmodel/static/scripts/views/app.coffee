@@ -36,9 +36,6 @@ class FlexCollection extends Backbone.Collection
     model: FlexModel
     url: ->
         "/api/#{@model_id}"
-    parse: (response) ->
-        @row_total = response.count
-        return response.results
 
 class FormField extends Marionette.ItemView
     """ Form field representation
@@ -222,8 +219,14 @@ class FormView extends Marionette.CompositeView
         @children.each (view) =>
             field_name = view.model.get('name')
             @model.set field_name, view.get_value()
+            view.model.set
+                value: view.get_value()
+                error: false
         @model.save {},
-            success: -> alert 'saved!'
+            success: =>
+                @target_collection.add @model
+                @create_empty_model()
+                @render()
             error: (model, data) =>
                 for field, errors of data.responseJSON
                     field = @collection.where({name: field})[0]
@@ -242,6 +245,9 @@ class FormView extends Marionette.CompositeView
         if not options.target_collection?
             throw 'no target for FormView'
         @target_collection = options.target_collection
+        @create_empty_model()
+
+    create_empty_model: ->
         @model = new @target_collection.model
         @model.collection = @target_collection
         data = []

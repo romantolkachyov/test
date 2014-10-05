@@ -18,7 +18,7 @@ urlpatterns = []
 
 for model_name in models.flex_model_list:
     model = getattr(models, model_name)
-    attrs = dict(model=model, paginate_by=50)
+    attrs = dict(model=model)
     # TODO: restframework routing, viewset
     list_api = type("%sList" % model_name, (FlexListAPIView,), attrs)
     list_api_url = url(r"^api/%s$" % model_name, list_api.as_view())
