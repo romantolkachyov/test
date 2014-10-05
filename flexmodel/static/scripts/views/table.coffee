@@ -2,13 +2,9 @@ Backbone = require 'backbone'
 Marionette = require 'backbone.marionette'
 
 utils = require './utils.coffee'
-get_field_list = utils.get_field_list
-setCaretToPos = utils.setCaretToPos
-
 fields = require './fields.coffee'
-FormField = fields.FormField
 
-class FieldView extends FormField
+class FieldView extends fields.FormField
     """ Table cell representation with inline edit behaivor
 
     TODO: Marionette.Behaivor
@@ -47,7 +43,7 @@ class FieldView extends FormField
         @model.get 'value'
     onRender: ->
         if @model.get 'edit'
-            setCaretToPos(@ui.input[0], @ui.input.val().length)
+            utils.setCaretToPos(@ui.input[0], @ui.input.val().length)
 
 class DateFieldView extends FieldView
     toggle_edit: ->
@@ -74,7 +70,7 @@ class FlexModelView extends Marionette.CollectionView
     initialize: ->
         super()
         data = []
-        for field in get_field_list(@model.collection.model_id)
+        for field in utils.get_field_list(@model.collection.model_id)
             data.push
                 name: field.id
                 value: @model.get field.id
@@ -88,7 +84,7 @@ class FlexModelView extends Marionette.CollectionView
             return DateFieldView
         else
             return FieldView
-    get_field_list: => get_field_list(@model.collection.model_id)
+    get_field_list: => utils.get_field_list(@model.collection.model_id)
     on_field_change: (model) ->
         field = model.get 'name'
         value = model.get 'value'
@@ -111,7 +107,7 @@ class FlexTableView extends Marionette.CompositeView
 
     get_column_list: =>
         field_list = []
-        for field in get_field_list(@collection.model_id)
+        for field in utils.get_field_list(@collection.model_id)
             field_list.push field.title
         field_list
 

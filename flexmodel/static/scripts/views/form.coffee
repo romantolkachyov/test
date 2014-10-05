@@ -2,11 +2,8 @@ Backbone = require 'backbone'
 Marionette = require 'backbone.marionette'
 
 utils = require './utils.coffee'
-get_field_list = utils.get_field_list
 
 fields = require './fields.coffee'
-FormField = fields.FormField
-FormDateField = fields.FormDateField
 
 class FormView extends Marionette.CompositeView
     template: require '../../templates/form.eco'
@@ -32,8 +29,8 @@ class FormView extends Marionette.CompositeView
     childViewContainer: '.field_list'
     getChildView: (model) ->
         if model.get('type') == 'date'
-            return FormDateField
-        return FormField
+            return fields.FormDateField
+        return fields.FormField
     templateHelpers: ->
         get_field_list: @get_field_list
 
@@ -57,6 +54,6 @@ class FormView extends Marionette.CompositeView
         @collection = new Backbone.Collection data
 
     get_field_list: =>
-        get_field_list @target_collection.model_id
+        utils.get_field_list @target_collection.model_id
 
 module.exports = FormView
